@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
+from os import path
 from sys import stdin, stdout, stderr
 
 from markdown import markdown as md
@@ -29,6 +30,8 @@ def parse_args():
         help='In HTML, include CSS within a <style> tag instead of linking to --css')
     parser.add_argument('--no-css', action='store_true', default=False,
         help='Prevent --css from adding CSS to --html')
+    parser.add_argument('--no-sass', action='store_true', default=False,
+        help='Don\'t parse --style as SCSS, instead assume it is raw CSS.')
     # parser.add_argument('-w', '--watch', action='store_true', default=False, help='Enable watching for changes')
 
     args = parser.parse_args()
@@ -54,7 +57,7 @@ def parse_args():
 
 
 def sass(infile):
-    return compile_scss(infile.read())
+    return compile_scss(infile.read(), generate_source_map=False, output_style='expanded')
 
 def markdown(infile):
     return md(infile.read(), output_format='xhtml5')
@@ -65,30 +68,31 @@ def pdf(outfile, html='', css=''):
 
 def main(args):
 
-    print(args)
-    print()
-    print()
-
     html = markdown(args.input)
 
     css = ''
     if args.style:
-        css = sass(args.style)
+        css = args.style.read() if args.no_sass else sass(args.style)
 
     if args.css:
         args.css.write(css)
 
-    if args.html:
-        # TODO: Add options to inject css as <style> or <link>
-        if not args.no_css:
-            if args.inline:
-                print('inline')
-            elif args.css:
-                print('linking')
-        else: print('no-css!!')
-        args.html.write(html)
-
     if args.pdf:
         pdf(args.pdf, html, css)
+
+    if args.html:
+        # Work out how/if to inject CSS
+        style=''
+        if not args.no_css:
+            if args.inline:
+                style='<style>\n{0}\n</style>'.format(css)
+            elif args.css:
+                # Work out the relative path from html to css
+                prefix=path.commonprefix([args.html.name, args.css.name])
+                css_path=path.relpath(args.css.name, prefix)
+                style='<link rel="stylesheet" type="text/css" href="{0}" />'.format(css_path)
+
+        output='<!DOCTYPE html>\n<html><head>\n{css}\n</head><body>\n{html}\n</body></html>'.format(html=html, css=style)
+        args.html.write(output)
 
 main(parse_args())
