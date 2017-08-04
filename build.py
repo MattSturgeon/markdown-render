@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
-from os import path
+from os import path, makedirs
+from time import sleep
 from sys import stdin, stdout, stderr
 
 from markdown import markdown as md
@@ -10,94 +11,103 @@ from weasyprint import HTML, CSS
 from weasyprint.fonts import FontConfiguration
 
 def parse_args():
-    infile = FileType('r', encoding='UTF-8')
-    outfile = FileType('w', encoding='UTF-8')
-
     parser = ArgumentParser(prog='build',
         description='Build a html and/or pdf resume from a markdown and css file')
 
-    parser.add_argument('input', type=infile,
-        help='The markdown file to use as input (use - for stdin)')
-    parser.add_argument('-s', '--style', type=infile, default=False,
-        help='The scss file to use (use - for stdin)')
-    parser.add_argument('--html', type=outfile, default=False,
-        help='Where to build the html output (use - for stdout)')
-    parser.add_argument('-p', '--pdf', type=outfile, default=False,
-        help='Where to build the pdf output (use - for stdout)')
-    parser.add_argument('-c', '--css', type=outfile, default=False,
-        help='Optional file to output CSS into')
-    parser.add_argument('-i', '--inline', action='store_true', default=False,
-        help='In HTML, include CSS within a <style> tag instead of linking to --css')
-    parser.add_argument('--no-css', action='store_true', default=False,
-        help='Prevent --css from adding CSS to --html')
-    parser.add_argument('--no-sass', action='store_true', default=False,
-        help='Don\'t parse --style as SCSS, instead assume it is raw CSS.')
-    # parser.add_argument('-w', '--watch', action='store_true', default=False, help='Enable watching for changes')
+    parser.add_argument('-w', '--watch', action='store_true', default=False, help='Enable watching for changes')
 
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Count how many args equal stdin or stdout
-    stdin_count = 0
-    stdout_count = 0
-    for arg in vars(args):
-        if arg == stdin: stdin_count += 1
-        elif arg == stdout: stdout_count += 1
+def file_changed(file_obj):
+    name = file_obj.name
 
-    # Ensure we have at least one output
-    if not args.pdf and not args.html and not css:
-        exit('You must specify at least one output (--html, --pdf or --css)!')
-    # Ensure we only use stdin for one input
-    if stdin_count > 1:
-        exit('You can only use stdin for one thing (input or --style)!')
-    # Ensure we only use stdout for one output
-    if stdout_count > 1:
-        exit('You can only print stdout to one output (--html or --pdf)!')
+    # Ensure key exists
+    if not name in file_changed.times:
+        file_changed.times[name] = 0
 
-    return args
+    # Check if time is different and update the chached time
+    time = path.getmtime(file_obj.name)
+    changed = time != file_changed.times[name]
+    file_changed.times[name] = time
 
+    return changed
+file_changed.times = {} # Keep track of modtimes for files
+
+def peek(f, length=None):
+    pos = f.tell()
+    data = f.read(length)
+    f.seek(pos)
+    return data
 
 def sass(infile):
-    return compile_scss(infile.read(), generate_source_map=False, output_style='expanded')
+    return compile_scss(peek(infile), generate_source_map=False, output_style='expanded')
 
 def markdown(infile):
-    return md(infile.read(), output_format='xhtml5',
+    return md(peek(infile), output_format='xhtml5',
         extensions=[
             'markdown.extensions.def_list',
             'markdown.extensions.attr_list'
         ])
 
-
-def pdf(outfile, html='', css=''):
+def write_pdf(html, css):
     font_config = FontConfiguration()
-    HTML(string=html).write_pdf(outfile.buffer, stylesheets=[CSS(string=css, font_config=font_config)])
+    HTML(string=html).write_pdf('build/resume.pdf', stylesheets=[CSS(string=css, font_config=font_config)])
+
+def write_html(html, css):
+    with open('build/resume.html', 'w') as out:
+        out.write('''<!DOCTYPE html>
+<html>
+<head>
+<style>
+{1}
+</style>
+</head>
+<body>
+{0}
+</body>
+</html>
+'''.format(html, css))
+    out.close()
 
 def main(args):
+    # Ensure output directory exists:
+    makedirs('build', exist_ok=True)
 
-    html = markdown(args.input)
+    with open('src/resume.md', 'r') as md_file, open('src/main.scss', 'r') as sass_file:
 
-    css = ''
-    if args.style:
-        css = args.style.read() if args.no_sass else sass(args.style)
+        html = ''
+        css = ''
 
-    if args.css:
-        args.css.write(css)
+        print('Building resume in pdf and html format under build/')
+        if args.watch:
+            print('Watching for changes to {} and {}. Use Ctrl+C to cancel.'.format(md_file.name, sass_file.name))
 
-    if args.pdf:
-        pdf(args.pdf, html, css)
+        while True:
+            try:
+                # Check for changed files
+                md_changed = file_changed(md_file)
+                sass_changed = file_changed(sass_file)
 
-    if args.html:
-        # Work out how/if to inject CSS
-        style=''
-        if not args.no_css:
-            if args.inline:
-                style='<style>\n{0}\n</style>'.format(css)
-            elif args.css:
-                # Work out the relative path from html to css
-                prefix=path.commonprefix([args.html.name, args.css.name])
-                css_path=path.relpath(args.css.name, prefix)
-                style='<link rel="stylesheet" type="text/css" href="{0}" />'.format(css_path)
+                if md_changed:
+                    html = markdown(md_file)
 
-        output='<!DOCTYPE html>\n<html><head>\n{css}\n</head><body>\n{html}\n</body></html>'.format(html=html, css=style)
-        args.html.write(output)
+                if sass_changed:
+                    css = sass(sass_file)
+
+                if md_changed or sass_changed:
+                    write_pdf(html, css)
+                    write_html(html, css)
+
+                # if not watching, break after the first run (i.e. don't loop)
+                if not args.watch:
+                    break
+
+                sleep(1)
+            except KeyboardInterrupt:
+                print('\nDone')
+                break
+
+    md_file.close()
+    sass_file.close()
 
 main(parse_args())
