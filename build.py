@@ -60,7 +60,12 @@ def sass(infile):
     return compile_scss(infile.read(), generate_source_map=False, output_style='expanded')
 
 def markdown(infile):
-    return md(infile.read(), output_format='xhtml5')
+    return md(infile.read(), output_format='xhtml5',
+        extensions=[
+            'markdown.extensions.def_list',
+            'markdown.extensions.attr_list'
+        ])
+
 
 def pdf(outfile, html='', css=''):
     font_config = FontConfiguration()
