@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser, FileType
+from datetime import date
 from os import path, makedirs
 from time import sleep
 from sys import stdin, stdout, stderr
@@ -50,12 +51,14 @@ def markdown(infile):
         ])
 
 def write_pdf(html, css):
+    filename = 'build/resume-{}.pdf'.format(date.today())
     font_config = FontConfiguration()
-    HTML(string=html).write_pdf('build/resume.pdf', stylesheets=[CSS(string=css, font_config=font_config)])
+
+    HTML(string=html).write_pdf(filename, stylesheets=[CSS(string=css, font_config=font_config)])
 
 def write_html(html, css):
-    with open('build/resume.html', 'w') as out:
-        out.write('''<!DOCTYPE html>
+    filename = 'build/resume-{}.html'.format(date.today())
+    src = '''<!DOCTYPE html>
 <html>
 <head>
 <style>
@@ -66,7 +69,10 @@ def write_html(html, css):
 {0}
 </body>
 </html>
-'''.format(html, css))
+'''.format(html, css)
+
+    with open(filename, 'w') as out:
+        out.write(src)
     out.close()
 
 def main(args):
