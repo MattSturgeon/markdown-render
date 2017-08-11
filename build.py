@@ -44,11 +44,7 @@ def sass(infile):
     return compile_scss(peek(infile), generate_source_map=False, output_style='expanded')
 
 def markdown(infile):
-    return md(peek(infile), output_format='xhtml5',
-        extensions=[
-            'markdown.extensions.def_list',
-            'markdown.extensions.attr_list'
-        ])
+    return md(peek(infile), output_format='xhtml5', extensions=[ 'markdown.extensions.extra' ])
 
 def write_pdf(html, css):
     filename = 'build/resume-{}.pdf'.format(date.today())
