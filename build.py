@@ -11,13 +11,23 @@ from scss.compiler import compile_string as compile_scss
 from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
 
-def parse_args():
-    parser = ArgumentParser(prog='build',
-        description='Build a html and/or pdf resume from a markdown and css file')
 
-    parser.add_argument('-w', '--watch', action='store_true', default=False, help='Enable watching for changes')
+def parse_args():
+    parser = ArgumentParser(
+        prog="build",
+        description="Build a html and/or pdf resume from a markdown and css file",
+    )
+
+    parser.add_argument(
+        "-w",
+        "--watch",
+        action="store_true",
+        default=False,
+        help="Enable watching for changes",
+    )
 
     return parser.parse_args()
+
 
 def file_changed(file_obj):
     name = file_obj.name
@@ -32,7 +42,10 @@ def file_changed(file_obj):
     file_changed.times[name] = time
 
     return changed
-file_changed.times = {} # Keep track of modtimes for files
+
+
+file_changed.times = {}  # Keep track of modtimes for files
+
 
 def peek(f, length=None):
     pos = f.tell()
@@ -40,21 +53,31 @@ def peek(f, length=None):
     f.seek(pos)
     return data
 
+
 def sass(infile):
-    return compile_scss(peek(infile), generate_source_map=False, output_style='expanded')
+    return compile_scss(
+        peek(infile), generate_source_map=False, output_style="expanded"
+    )
+
 
 def markdown(infile):
-    return md(peek(infile), output_format='xhtml5', extensions=[ 'markdown.extensions.extra' ])
+    return md(
+        peek(infile), output_format="xhtml5", extensions=["markdown.extensions.extra"]
+    )
+
 
 def write_pdf(html, css):
-    filename = 'build/resume-{}.pdf'.format(date.today())
+    filename = "build/resume-{}.pdf".format(date.today())
     font_config = FontConfiguration()
 
-    HTML(string=html).write_pdf(filename, stylesheets=[CSS(string=css, font_config=font_config)])
+    HTML(string=html).write_pdf(
+        filename, stylesheets=[CSS(string=css, font_config=font_config)]
+    )
+
 
 def write_html(html, css):
-    filename = 'build/resume-{}.html'.format(date.today())
-    src = '''<!DOCTYPE html>
+    filename = "build/resume-{}.html".format(date.today())
+    src = """<!DOCTYPE html>
 <html>
 <head>
 <style>
@@ -65,24 +88,31 @@ def write_html(html, css):
 {0}
 </body>
 </html>
-'''.format(html, css)
+""".format(
+        html, css
+    )
 
-    with open(filename, 'w') as out:
+    with open(filename, "w") as out:
         out.write(src)
     out.close()
 
+
 def main(args):
     # Ensure output directory exists:
-    makedirs('build', exist_ok=True)
+    makedirs("build", exist_ok=True)
 
-    with open('src/resume.md', 'r') as md_file, open('src/main.scss', 'r') as sass_file:
+    with open("src/resume.md", "r") as md_file, open("src/main.scss", "r") as sass_file:
 
-        html = ''
-        css = ''
+        html = ""
+        css = ""
 
-        print('Building resume in pdf and html format under build/')
+        print("Building resume in pdf and html format under build/")
         if args.watch:
-            print('Watching for changes to {} and {}. Use Ctrl+C to cancel.'.format(md_file.name, sass_file.name))
+            print(
+                "Watching for changes to {} and {}. Use Ctrl+C to cancel.".format(
+                    md_file.name, sass_file.name
+                )
+            )
 
         while True:
             try:
@@ -106,10 +136,11 @@ def main(args):
 
                 sleep(1)
             except KeyboardInterrupt:
-                print('\nDone')
+                print("\nDone")
                 break
 
     md_file.close()
     sass_file.close()
+
 
 main(parse_args())
