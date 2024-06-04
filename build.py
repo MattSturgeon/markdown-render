@@ -9,7 +9,7 @@ from sys import stdin, stdout, stderr
 from markdown import markdown as md
 from scss.compiler import compile_string as compile_scss
 from weasyprint import HTML, CSS
-from weasyprint.fonts import FontConfiguration
+from weasyprint.text.fonts import FontConfiguration
 
 def parse_args():
     parser = ArgumentParser(prog='build',
