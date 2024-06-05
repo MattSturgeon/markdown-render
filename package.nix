@@ -5,7 +5,6 @@ python3Packages.buildPythonApplication {
 
   propagatedBuildInputs = with python3Packages; [
     markdown
-    pyscss
     weasyprint
   ];
 

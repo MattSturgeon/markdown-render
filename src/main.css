@@ -1,0 +1,407 @@
+/**
+ * Originally based on a pandoc stylesheet by killercup
+ *
+ * Upstream: https://gist.github.com/killercup/5917178
+ */
+
+:root {
+  /* base colors */
+  --black: #000;
+  --white-0: #fefefe;
+  --white-1: #f8f8f8;
+  --white-2: #eee;
+  --white-3: #ddd;
+  --grey-0: #aaa;
+  --grey-1: #666;
+  --grey-2: #444;
+  --grey-3: #111;
+  --light-yellow: #ff9;
+  --yellow: #ff0;
+  --transparent-yellow: rgba(255, 255, 0, 0.3);
+
+  /* theme */
+  --main-font: Tahoma, Geneva, Verdana, sans-serif;
+  --main-font-size: 12px;
+  --main-color: var(--grey-2);
+  --main-bg-color: var(--grey-1);
+  --page-bg-color: var(--white-0);
+  --heading-color: var(--grey-3);
+  --link-color: #0645ad;
+  --link-visited-color: #0b0080;
+  --link-hover-color: #06e;
+  --link-active-color: #faa700;
+  --code-color: var(--black);
+  --quote-color: var(--grey-1);
+  --quote-bar-color: var(--white-2);
+  --box-border-color: var(--grey-0);
+  --ins-color: var(--black);
+  --ins-bg-color: var(--light-yellow);
+  --mark-color: var(--black);
+  --mark-bg-color: var(--yellow);
+  --hr-color: var(--grey-0);
+  --table-border-color: var(--white-3);
+  --table-heading-bg-color: var(--white-2);
+  --selection-bg-color: var(--transparent-yellow);
+}
+
+/* test */
+
+html {
+  background: var(--main-bg-color);
+  font-size: 100%;
+  overflow-y: scroll;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  color: var(--main-color);
+  font-family: var(--main-font);
+  font-size: var(--main-font-size);
+  line-height: 1.7;
+  padding: 1em;
+  margin: auto;
+  max-width: 42em;
+  background: var(--page-bg-color);
+}
+
+.center-text {
+  text-align: center;
+}
+
+.date {
+  font-style: italic;
+  float: right;
+}
+
+a {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--link-visited-color);
+}
+
+a:hover {
+  color: var(--link-hover-color);
+}
+
+a:active {
+  color: var(--link-active-color);
+}
+
+a:focus {
+  outline: thin dotted;
+}
+
+*::-moz-selection {
+  background: var(--selection-bg-color);
+  color: var(--black);
+}
+
+*::selection {
+  background: var(--selection-bg-color);
+  color: var(--black);
+}
+
+a::-moz-selection {
+  background: var(--selection-bg-color);
+  color: var(--link-color);
+}
+
+a::selection {
+  background: var(--selection-bg-color);
+  color: var(--link-color);
+}
+
+p {
+  margin: 1em 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--heading-color);
+  line-height: 125%;
+  margin-top: 2em;
+  font-weight: normal;
+}
+
+h4,
+h5,
+h6 {
+  font-weight: bold;
+}
+
+h1 {
+  text-align: center;
+  font-size: 2.5em;
+  line-height: 100%;
+  page-break-before: always;
+}
+
+h2 {
+  font-size: 2em;
+}
+
+h3 {
+  font-size: 1.5em;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+h5 {
+  font-size: 1em;
+}
+
+h6 {
+  font-size: 0.9em;
+}
+
+blockquote {
+  color: var(--quote-color);
+  margin: 0;
+  padding-left: 3em;
+  border-left: 0.5em var(--quote-bar-color) solid;
+}
+
+hr {
+  display: block;
+  height: 2px;
+  border: 0;
+  border-top: 1px solid var(--hr-color);
+  border-bottom: 1px solid var(--hr-color);
+  margin: 1em 0;
+  padding: 0;
+}
+
+pre,
+code,
+kbd,
+samp {
+  color: var(--code-color);
+  font-family: monospace, monospace;
+  _font-family: "courier new", monospace;
+  font-size: 0.98em;
+}
+
+pre {
+  white-space: pre;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+b,
+strong {
+  font-weight: bold;
+}
+
+dfn {
+  font-style: italic;
+}
+
+ins {
+  background: var(--ins-bg-color);
+  color: var(--ins-color);
+  text-decoration: none;
+}
+
+mark {
+  background: var(--mark-bg-color);
+  color: var(--mark-color);
+  font-style: italic;
+  font-weight: bold;
+}
+
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+ul,
+ol {
+  margin: 1em 0;
+  padding: 0 0 0 2em;
+}
+
+li p:last-child {
+  margin-bottom: 0;
+}
+
+ul ul,
+ol ol {
+  margin: 0.3em 0;
+}
+
+dl {
+  margin-bottom: 1em;
+}
+
+dt {
+  font-weight: bold;
+  margin-bottom: 0.8em;
+}
+
+dd {
+  margin: 0 0 0.8em 2em;
+}
+
+dd:last-child {
+  margin-bottom: 0;
+}
+
+img {
+  border: 0;
+  -ms-interpolation-mode: bicubic;
+  vertical-align: middle;
+}
+
+figure {
+  display: block;
+  text-align: center;
+  margin: 1em 0;
+}
+
+figure img {
+  border: none;
+  margin: 0 auto;
+}
+
+figcaption {
+  font-size: 0.8em;
+  font-style: italic;
+  margin: 0 0 0.8em;
+}
+
+table {
+  margin-bottom: 2em;
+  border-bottom: 1px solid var(--table-border-color);
+  border-right: 1px solid var(--table-border-color);
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+table th {
+  padding: 0.2em 1em;
+  background-color: var(--table-heading-bg-color);
+  border-top: 1px solid var(--table-border-color);
+  border-left: 1px solid var(--table-border-color);
+}
+
+table td {
+  padding: 0.2em 1em;
+  border-top: 1px solid var(--table-border-color);
+  border-left: 1px solid var(--table-border-color);
+  vertical-align: top;
+}
+
+.author {
+  font-size: 1.2em;
+  text-align: center;
+}
+
+@media only screen and (min-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+}
+@media only screen and (min-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+}
+@media print {
+  * {
+    background: transparent !important;
+    color: black !important;
+    filter: none !important;
+    -ms-filter: none !important;
+  }
+
+  body {
+    font-size: 12pt;
+    max-width: 100%;
+  }
+
+  a,
+  a:visited {
+    text-decoration: underline;
+  }
+
+  hr {
+    height: 1px;
+    border: 0;
+    border-bottom: 1px solid black;
+  }
+
+  a[href]:after {
+    content: " (" attr(href) ")";
+  }
+
+  abbr[title]:after {
+    content: " (" attr(title) ")";
+  }
+
+  .ir a:after,
+  a[href^="javascript:"]:after,
+  a[href^="#"]:after {
+    content: "";
+  }
+
+  pre,
+  blockquote {
+    border: 1px solid var(--box-border-color);
+    padding-right: 1em;
+    page-break-inside: avoid;
+  }
+
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+
+  img {
+    max-width: 100% !important;
+  }
+
+  @page :left {
+    margin: 15mm 20mm 15mm 10mm;
+  }
+
+  @page :right {
+    margin: 15mm 10mm 15mm 20mm;
+  }
+
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+}

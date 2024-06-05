@@ -8,7 +8,6 @@ from sys import stdin, stdout, stderr
 from textwrap import dedent
 
 from markdown import markdown as md
-from scss.compiler import compile_string as compile_scss
 from weasyprint import HTML, CSS
 from weasyprint.text.fonts import FontConfiguration
 
@@ -53,12 +52,6 @@ def peek(f, length=None):
     data = f.read(length)
     f.seek(pos)
     return data
-
-
-def sass(infile):
-    return compile_scss(
-        peek(infile), generate_source_map=False, output_style="expanded"
-    )
 
 
 def markdown(infile):
@@ -107,7 +100,7 @@ def main(args):
     # Ensure output directory exists:
     makedirs("build", exist_ok=True)
 
-    with open("src/resume.md", "r") as md_file, open("src/main.scss", "r") as sass_file:
+    with open("src/resume.md", "r") as md_file, open("src/main.css", "r") as css_file:
         html = ""
         css = ""
 
@@ -115,7 +108,7 @@ def main(args):
         if args.watch:
             print(
                 "Watching for changes to {} and {}. Use Ctrl+C to cancel.".format(
-                    md_file.name, sass_file.name
+                    md_file.name, css_file.name
                 )
             )
 
@@ -123,13 +116,13 @@ def main(args):
             try:
                 # Check for changed files
                 md_changed = file_changed(md_file)
-                sass_changed = file_changed(sass_file)
+                sass_changed = file_changed(css_file)
 
                 if md_changed:
                     html = markdown(md_file)
 
                 if sass_changed:
-                    css = sass(sass_file)
+                    css = peek(css_file)
 
                 if md_changed or sass_changed:
                     write_pdf(html, css)
@@ -145,7 +138,7 @@ def main(args):
                 break
 
     md_file.close()
-    sass_file.close()
+    css_file.close()
 
 
 main(parse_args())
