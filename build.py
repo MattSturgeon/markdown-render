@@ -25,6 +25,26 @@ def parse_args():
         help="Enable watching for changes",
     )
 
+    parser.add_argument(
+        "file",
+        help="The markdown file to render",
+    )
+
+    parser.add_argument(
+        "-b",
+        "-o"
+        "--build-dir",
+        default="build",
+        help="The directory to write output to",
+    )
+
+    parser.add_argument(
+        "-s",
+        "--style",
+        "--css",
+        help="Optional CSS stylesheet",
+    )
+
     return parser.parse_args()
 
 
@@ -54,29 +74,27 @@ def markdown(filename):
 
 
 def read(filename):
+    if not filename:
+        return None
     with open(filename, "r") as file:
         return file.read()
 
 
 def write_pdf(html, css):
     filename = f"build/resume-{date.today()}.pdf"
-    font_config = FontConfiguration()
-
-    HTML(string=html).write_pdf(
-        filename, stylesheets=[CSS(string=css, font_config=font_config)]
-    )
+    stylesheets = [CSS(string=css, font_config=FontConfiguration())] if css else []
+    HTML(string=html).write_pdf(filename, stylesheets=stylesheets)
 
 
 def write_html(html, css):
     filename = f"build/resume-{date.today()}.html"
+    styleTag = f"<style>\n{css}\n</style>" if css else ""
     src = dedent(
         f"""
           <!DOCTYPE html>
           <html>
           <head>
-          <style>
-          {css}
-          </style>
+          {styleTag}
           </head>
           <body>
           {html}
@@ -90,19 +108,17 @@ def write_html(html, css):
 
 
 def main(args):
-    # TODO get files from args
-    md_file = "src/resume.md"
-    css_file = "src/main.css"
-    out_dir = "build"
+    md_file = args.file
+    css_file = args.style
+    build_dir = args.build_dir
 
     print("Building resume in pdf and html format under build/")
     if args.watch:
-        print(
-            f"Watching for changes to {md_file} and {css_file}. Use Ctrl+C to cancel."
-        )
+        optional = f" and {css_file}" if css_file else ""
+        print(f"Watching for changes to {md_file}{optional}. Use Ctrl+C to cancel.")
 
     # Ensure output directory exists:
-    makedirs(out_dir, exist_ok=True)
+    makedirs(build_dir, exist_ok=True)
 
     html = ""
     css = ""
@@ -110,7 +126,9 @@ def main(args):
     while True:
         try:
             # Check for changed files
-            modified = [file for file in [md_file, css_file] if file_changed(file)]
+            modified = [
+                file for file in [md_file, css_file] if file and file_changed(file)
+            ]
 
             # Print changes on subsequent iterations
             if not first_iteration:
