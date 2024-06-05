@@ -29,17 +29,15 @@ def parse_args():
     return parser.parse_args()
 
 
-def file_changed(file_obj):
-    name = file_obj.name
-
+def file_changed(filename):
     # Ensure key exists
-    if not name in file_changed.times:
-        file_changed.times[name] = 0
+    if not filename in file_changed.times:
+        file_changed.times[filename] = 0
 
     # Check if time is different and update the chached time
-    time = path.getmtime(file_obj.name)
-    changed = time != file_changed.times[name]
-    file_changed.times[name] = time
+    time = path.getmtime(filename)
+    changed = time != file_changed.times[filename]
+    file_changed.times[filename] = time
 
     return changed
 
@@ -47,17 +45,18 @@ def file_changed(file_obj):
 file_changed.times = {}  # Keep track of modtimes for files
 
 
-def peek(f, length=None):
-    pos = f.tell()
-    data = f.read(length)
-    f.seek(pos)
-    return data
+def markdown(filename):
+    with open(filename, "r") as file:
+        return md(
+            file.read(),
+            output_format="xhtml5",
+            extensions=["markdown.extensions.extra"],
+        )
 
 
-def markdown(infile):
-    return md(
-        peek(infile), output_format="xhtml5", extensions=["markdown.extensions.extra"]
-    )
+def read(filename):
+    with open(filename, "r") as file:
+        return file.read()
 
 
 def write_pdf(html, css):
@@ -93,52 +92,58 @@ def write_html(html, css):
 
     with open(filename, "w") as out:
         out.write(src)
-    out.close()
 
 
 def main(args):
-    # Ensure output directory exists:
-    makedirs("build", exist_ok=True)
+    # TODO get files from args
+    md_file = "src/resume.md"
+    css_file = "src/main.css"
+    out_dir = "build"
 
-    with open("src/resume.md", "r") as md_file, open("src/main.css", "r") as css_file:
-        html = ""
-        css = ""
-
-        print("Building resume in pdf and html format under build/")
-        if args.watch:
-            print(
-                "Watching for changes to {} and {}. Use Ctrl+C to cancel.".format(
-                    md_file.name, css_file.name
-                )
+    print("Building resume in pdf and html format under build/")
+    if args.watch:
+        print(
+            "Watching for changes to {} and {}. Use Ctrl+C to cancel.".format(
+                md_file, css_file
             )
+        )
 
-        while True:
-            try:
-                # Check for changed files
-                md_changed = file_changed(md_file)
-                sass_changed = file_changed(css_file)
+    # Ensure output directory exists:
+    makedirs(out_dir, exist_ok=True)
 
-                if md_changed:
-                    html = markdown(md_file)
+    html = ""
+    css = ""
+    first_iteration = True
+    while True:
+        try:
+            # Check for changed files
+            modified = [file for file in [md_file, css_file] if file_changed(file)]
 
-                if sass_changed:
-                    css = peek(css_file)
+            # Print changes on subsequent iterations
+            if not first_iteration:
+                for file in modified:
+                    print("File modified: {}".format(file))
 
-                if md_changed or sass_changed:
-                    write_pdf(html, css)
-                    write_html(html, css)
+            if first_iteration or md_file in modified:
+                html = markdown(md_file)
 
-                # if not watching, break after the first run (i.e. don't loop)
-                if not args.watch:
-                    break
+            if first_iteration or css_file in modified:
+                css = read(css_file)
 
-                sleep(1)
-            except KeyboardInterrupt:
-                print("\nDone")
+            if first_iteration or modified:
+                write_pdf(html, css)
+                write_html(html, css)
+
+            first_iteration = False
+
+            # if not watching, break after the first run (i.e. don't loop)
+            if not args.watch:
                 break
 
-    md_file.close()
-    css_file.close()
+            sleep(1)
+        except KeyboardInterrupt:
+            print("\nDone")
+            break
 
 
 main(parse_args())
