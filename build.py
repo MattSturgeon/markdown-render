@@ -60,7 +60,7 @@ def read(filename):
 
 
 def write_pdf(html, css):
-    filename = "build/resume-{}.pdf".format(date.today())
+    filename = f"build/resume-{date.today()}.pdf"
     font_config = FontConfiguration()
 
     HTML(string=html).write_pdf(
@@ -69,26 +69,22 @@ def write_pdf(html, css):
 
 
 def write_html(html, css):
-    filename = "build/resume-{}.html".format(date.today())
-    src = (
-        dedent(
-            """
-              <!DOCTYPE html>
-              <html>
-              <head>
-              <style>
-              {1}
-              </style>
-              </head>
-              <body>
-              {0}
-              </body>
-              </html>
-            """
-        )
-        .strip()
-        .format(html, css)
-    )
+    filename = f"build/resume-{date.today()}.html"
+    src = dedent(
+        f"""
+          <!DOCTYPE html>
+          <html>
+          <head>
+          <style>
+          {css}
+          </style>
+          </head>
+          <body>
+          {html}
+          </body>
+          </html>
+        """
+    ).strip()
 
     with open(filename, "w") as out:
         out.write(src)
@@ -103,9 +99,7 @@ def main(args):
     print("Building resume in pdf and html format under build/")
     if args.watch:
         print(
-            "Watching for changes to {} and {}. Use Ctrl+C to cancel.".format(
-                md_file, css_file
-            )
+            f"Watching for changes to {md_file} and {css_file}. Use Ctrl+C to cancel."
         )
 
     # Ensure output directory exists:
@@ -122,7 +116,7 @@ def main(args):
             # Print changes on subsequent iterations
             if not first_iteration:
                 for file in modified:
-                    print("File modified: {}".format(file))
+                    print(f"File modified: {file}")
 
             if first_iteration or md_file in modified:
                 html = markdown(md_file)
