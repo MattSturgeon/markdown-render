@@ -4,7 +4,6 @@ from argparse import ArgumentParser, FileType
 from datetime import date
 from os import path, makedirs
 from time import sleep
-from sys import stdin, stdout, stderr
 from textwrap import dedent
 
 from markdown import markdown as md
@@ -31,7 +30,7 @@ def parse_args():
 
 def file_changed(filename):
     # Ensure key exists
-    if not filename in file_changed.times:
+    if filename not in file_changed.times:
         file_changed.times[filename] = 0
 
     # Check if time is different and update the chached time
