@@ -5,6 +5,7 @@ from datetime import date
 from os import path, makedirs
 from time import sleep
 from sys import stdin, stdout, stderr
+from textwrap import dedent
 
 from markdown import markdown as md
 from scss.compiler import compile_string as compile_scss
@@ -77,19 +78,24 @@ def write_pdf(html, css):
 
 def write_html(html, css):
     filename = "build/resume-{}.html".format(date.today())
-    src = """<!DOCTYPE html>
-<html>
-<head>
-<style>
-{1}
-</style>
-</head>
-<body>
-{0}
-</body>
-</html>
-""".format(
-        html, css
+    src = (
+        dedent(
+            """
+              <!DOCTYPE html>
+              <html>
+              <head>
+              <style>
+              {1}
+              </style>
+              </head>
+              <body>
+              {0}
+              </body>
+              </html>
+            """
+        )
+        .strip()
+        .format(html, css)
     )
 
     with open(filename, "w") as out:
@@ -102,7 +108,6 @@ def main(args):
     makedirs("build", exist_ok=True)
 
     with open("src/resume.md", "r") as md_file, open("src/main.scss", "r") as sass_file:
-
         html = ""
         css = ""
 
