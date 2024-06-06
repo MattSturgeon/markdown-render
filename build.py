@@ -32,7 +32,7 @@ def parse_args():
 
     parser.add_argument(
         "-b",
-        "-o"
+        "-o",
         "--build-dir",
         default="build",
         help="The directory to write output to",
