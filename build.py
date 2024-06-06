@@ -112,7 +112,7 @@ def main(args):
     css_file = args.style
     build_dir = args.build_dir
 
-    print("Building resume in pdf and html format under build/")
+    print(f"Building resume in pdf and html format in {build_dir}")
     if args.watch:
         optional = f" and {css_file}" if css_file else ""
         print(f"Watching for changes to {md_file}{optional}. Use Ctrl+C to cancel.")
