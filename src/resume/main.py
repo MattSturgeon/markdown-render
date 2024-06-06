@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser, FileType
 from datetime import date
+from importlib import resources
 from os import path, makedirs
 from time import sleep
 from textwrap import dedent
@@ -74,27 +75,26 @@ def markdown(filename):
 
 
 def read(filename):
-    if not filename:
-        return None
     with open(filename, "r") as file:
         return file.read()
 
 
 def write_pdf(html, css):
     filename = f"build/resume-{date.today()}.pdf"
-    stylesheets = [CSS(string=css, font_config=FontConfiguration())] if css else []
+    stylesheets = [CSS(string=css, font_config=FontConfiguration())]
     HTML(string=html).write_pdf(filename, stylesheets=stylesheets)
 
 
 def write_html(html, css):
     filename = f"build/resume-{date.today()}.html"
-    styleTag = f"<style>\n{css}\n</style>" if css else ""
     src = dedent(
         f"""
           <!DOCTYPE html>
           <html>
           <head>
-          {styleTag}
+          <style>
+          {css}
+          </style>
           </head>
           <body>
           {html}
@@ -124,6 +124,11 @@ def main():
     html = ""
     css = ""
     first_iteration = True
+
+    # Read the default CSS file
+    if not css_file:
+        css = resources.files("resume").joinpath("main.css").read_text()
+
     while True:
         try:
             # Check for changed files
@@ -139,7 +144,7 @@ def main():
             if first_iteration or md_file in modified:
                 html = markdown(md_file)
 
-            if first_iteration or css_file in modified:
+            if css_file and first_iteration or css_file in modified:
                 css = read(css_file)
 
             if first_iteration or modified:
