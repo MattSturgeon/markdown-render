@@ -107,7 +107,8 @@ def write_html(html, css):
         out.write(src)
 
 
-def main(args):
+def main():
+    args = parse_args()
     md_file = args.file
     css_file = args.style
     build_dir = args.build_dir
@@ -155,6 +156,3 @@ def main(args):
         except KeyboardInterrupt:
             print("\nDone")
             break
-
-
-main(parse_args())

@@ -2,6 +2,9 @@
 python3Packages.buildPythonApplication {
   pname = "python-resume";
   version = "1.0";
+  pyproject = true;
+
+  nativeBuildInputs = [ python3Packages.setuptools-scm ];
 
   propagatedBuildInputs = with python3Packages; [
     markdown
@@ -11,7 +14,7 @@ python3Packages.buildPythonApplication {
   src = ./.;
 
   meta = {
-    mainProgram = "build.py";
+    mainProgram = "draw-resume";
     license = lib.licenses.mit;
   };
 }

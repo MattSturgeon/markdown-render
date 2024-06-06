@@ -1,0 +1,18 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+    "setuptools",
+    "setuptools-scm"
+]
+
+[project]
+name="python-resume"
+version="1.0"
+dependencies = [
+    "markdown",
+    "weasyprint",
+]
+
+[project.scripts]
+draw-resume = "resume.main:main"
+
