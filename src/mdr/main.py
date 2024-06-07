@@ -15,8 +15,8 @@ from weasyprint.text.fonts import FontConfiguration
 
 def parse_args():
     parser = ArgumentParser(
-        prog="build",
-        description="Build a html and/or pdf resume from a markdown and css file",
+        prog="mdr",
+        description="Render a html and/or pdf page from a markdown and css file",
     )
 
     parser.add_argument(
@@ -81,13 +81,13 @@ def read(filename):
 
 
 def write_pdf(html, css, out):
-    path = out / f"resume-{date.today()}.pdf"
+    path = out / f"{date.today()}.pdf"
     stylesheets = [CSS(string=css, font_config=FontConfiguration())]
     HTML(string=html).write_pdf(target=path, stylesheets=stylesheets)
 
 
 def write_html(html, css, out):
-    path = out / f"resume-{date.today()}.html"
+    path = out / f"{date.today()}.html"
     path.write_text(
         dedent(
             f"""
@@ -113,7 +113,7 @@ def main():
     css_file = args.style
     build_dir = Path(args.build_dir)
 
-    print(f"Building resume in pdf and html format in {build_dir}")
+    print(f"Rendering pdf and html in {build_dir}")
     if args.watch:
         optional = f" and {css_file}" if css_file else ""
         print(f"Watching for changes to {md_file}{optional}. Use Ctrl+C to cancel.")
@@ -127,7 +127,7 @@ def main():
 
     # Read the default CSS file
     if not css_file:
-        css = resources.files("resume").joinpath("main.css").read_text()
+        css = resources.files("mdr").joinpath("main.css").read_text()
 
     while True:
         try:

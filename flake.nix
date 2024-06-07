@@ -1,5 +1,5 @@
 {
-  description = "Generate a HTML & PDF resume from markdown.";
+  description = "Render HTML & PDF from markdown.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";

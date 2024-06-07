@@ -1,6 +1,6 @@
 { lib, python3Packages }:
 python3Packages.buildPythonApplication {
-  pname = "python-resume";
+  pname = "markdown-render";
   version = "1.0";
   pyproject = true;
 
@@ -14,7 +14,7 @@ python3Packages.buildPythonApplication {
   src = ./.;
 
   meta = {
-    mainProgram = "draw-resume";
+    mainProgram = "mdr";
     license = lib.licenses.mit;
   };
 }

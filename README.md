@@ -1,4 +1,4 @@
-# Resume renderer
+# Markdown Renderer
 
 A simple python script to render a markdown resume to both HTML and PDF.
 
@@ -10,9 +10,9 @@ Otherwise you will need:
 
 - Python 3.9+
 - [Python-Markdown](https://github.com/Python-Markdown/markdown)
-- [pyScss](https://github.com/Kronuz/pyScss/)
 - [WeasyPrint](https://github.com/Kozea/WeasyPrint)
 
 ## Usage
 
-TODO
+See `mdr --help`
+
