@@ -4,6 +4,7 @@ from argparse import ArgumentParser, FileType
 from datetime import date
 from importlib import resources
 from os import path, makedirs
+from pathlib import Path
 from time import sleep
 from textwrap import dedent
 
@@ -79,39 +80,38 @@ def read(filename):
         return file.read()
 
 
-def write_pdf(html, css):
-    filename = f"build/resume-{date.today()}.pdf"
+def write_pdf(html, css, out):
+    path = out / f"resume-{date.today()}.pdf"
     stylesheets = [CSS(string=css, font_config=FontConfiguration())]
-    HTML(string=html).write_pdf(filename, stylesheets=stylesheets)
+    HTML(string=html).write_pdf(target=path, stylesheets=stylesheets)
 
 
-def write_html(html, css):
-    filename = f"build/resume-{date.today()}.html"
-    src = dedent(
-        f"""
-          <!DOCTYPE html>
-          <html>
-          <head>
-          <style>
-          {css}
-          </style>
-          </head>
-          <body>
-          {html}
-          </body>
-          </html>
-        """
-    ).strip()
-
-    with open(filename, "w") as out:
-        out.write(src)
+def write_html(html, css, out):
+    path = out / f"resume-{date.today()}.html"
+    path.write_text(
+        dedent(
+            f"""
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <style>
+                {css}
+                </style>
+                </head>
+                <body>
+                {html}
+                </body>
+                </html>
+             """
+        ).strip()
+    )
 
 
 def main():
     args = parse_args()
     md_file = args.file
     css_file = args.style
-    build_dir = args.build_dir
+    build_dir = Path(args.build_dir)
 
     print(f"Building resume in pdf and html format in {build_dir}")
     if args.watch:
@@ -148,8 +148,8 @@ def main():
                 css = read(css_file)
 
             if first_iteration or modified:
-                write_pdf(html, css)
-                write_html(html, css)
+                write_pdf(html, css, build_dir)
+                write_html(html, css, build_dir)
 
             first_iteration = False
 
